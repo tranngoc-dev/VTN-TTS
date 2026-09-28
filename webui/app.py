@@ -572,44 +572,57 @@ with gr.Blocks(title="ZeroTTS", **_STYLE_ON_BLOCKS) as demo:
     with gr.Accordion("Tuỳ chọn nâng cao", open=False):
         mode_radio = gr.Radio(
             choices=MODE_CHOICES, value=MODE_VOICE, label="Chế độ giọng đọc",
-            info="Gói giọng đọc: Nhúng vector giọng chọn sẵn vào mô hình để giữ cố định giọng. Không dùng giọng: Mô hình tự chọn giọng ngẫu nhiên giữa các đoạn (dùng để kiểm thử chất lượng gốc).",
+            info="Gói giọng đọc: Nhúng vector giọng chọn sẵn vào mô hình để giữ cố định giọng. "
+                 "Không dùng giọng: Mô hình tự chọn giọng ngẫu nhiên giữa các đoạn "
+                 "(dùng để kiểm thử chất lượng gốc).",
         )
         cfg_slider = gr.Slider(
             1.0, 4.0, value=1.0, step=0.1, label="Mức độ định hướng giọng (CFG Scale)",
-            info="1.0 = Tắt. Giá trị trên 1.0 sẽ tăng độ trung thực của đặc trưng giọng đọc nhưng tốn gấp 2 lần thời gian xử lý (chạy song song 2 luồng tính toán).",
+            info="1.0 = Tắt. Giá trị trên 1.0 sẽ tăng độ trung thực của đặc trưng giọng đọc "
+                 "nhưng tốn gấp 2 lần thời gian xử lý (chạy song song 2 luồng tính toán).",
         )
         with gr.Row():
             chunk_sec_slider = gr.Slider(
                 5, 25, value=15, step=1,
                 label="Độ dài tối đa mỗi đoạn câu (giây)",
-                info="Tự động cắt bài văn dài thành các đoạn nhỏ. Giúp mô hình quản lý bộ nhớ đệm hiệu quả và phát âm thanh trực tiếp (streaming) mượt mà.",
+                info="Tự động cắt bài văn dài thành các đoạn nhỏ. Giúp mô hình quản lý bộ nhớ đệm "
+                     "hiệu quả và phát âm thanh trực tiếp (streaming) mượt mà.",
             )
             temperature_slider = gr.Slider(
                 0.1, 1.5, value=0.8, step=0.05,
                 label="Độ ngẫu nhiên âm thanh (Temperature)",
-                info="Kiểm soát độ biến thiên giọng đọc. Giá trị thấp (<0.6) đọc chuẩn xác, ít lỗi nhưng có thể máy móc; giá trị cao (>0.9) đọc tự nhiên, nhiều biểu cảm hơn.",
+                info="Kiểm soát độ biến thiên giọng đọc. Giá trị thấp (<0.6) đọc chuẩn xác, "
+                     "ít lỗi nhưng có thể máy móc; giá trị cao (>0.9) đọc tự nhiên, "
+                     "nhiều biểu cảm hơn.",
             )
         with gr.Row():
             topk_slider = gr.Slider(
                 1, 200, value=25, step=1, label="Tỷ lệ lấy mẫu Top-K",
-                info="Chỉ giữ lại K âm thanh có xác suất cao nhất tại mỗi bước. Tắt các âm thanh nhiễu rác. Giảm xuống 15-20 giúp bài đọc ổn định, tăng lên cho phép nhiều biến thể.",
+                info="Chỉ giữ lại K âm thanh có xác suất cao nhất tại mỗi bước. Tắt các âm thanh "
+                     "nhiễu rác. Giảm xuống 15-20 giúp bài đọc ổn định, tăng lên cho phép "
+                     "nhiều biến thể.",
             )
             topp_slider = gr.Slider(
                 0.1, 1.0, value=0.95, step=0.01, label="Tỷ lệ lấy mẫu Top-P",
-                info="Giữ lại tập hợp âm thanh có tổng xác suất tích lũy đạt P (95%). Phối hợp cùng Top-K để tự động mở rộng/thu hẹp tập lựa chọn theo độ khó của từ.",
+                info="Giữ lại tập hợp âm thanh có tổng xác suất tích lũy đạt P (95%). "
+                     "Phối hợp cùng Top-K để tự động mở rộng/thu hẹp tập lựa chọn "
+                     "theo độ khó của từ.",
             )
         repetition_penalty_slider = gr.Slider(
             1.0, 2.0, value=1.2, step=0.05, label="Hình phạt lặp âm (Repetition penalty)",
-            info="Trừ điểm xác suất với các mã âm thanh đã xuất hiện trong đoạn. Ngăn chặn hiện tượng lặp lại từ hoặc nói vấp. Đặt 1.0 sẽ tắt hình phạt.",
+            info="Trừ điểm xác suất với các mã âm thanh đã xuất hiện trong đoạn. "
+                 "Ngăn chặn hiện tượng lặp lại từ hoặc nói vấp. Đặt 1.0 sẽ tắt hình phạt.",
         )
         eoa_extra_slider = gr.Slider(
             0, 4, value=1, step=1, label="Số khung âm giữ lại ở đuôi (Tail frames)",
-            info="Số khung âm (mỗi khung 0.08 giây) được giữ lại sau tín hiệu dừng. Giúp phần nhả hơi/kết thúc câu ở từ cuối cùng trọn vẹn và tự nhiên.",
+            info="Số khung âm (mỗi khung 0.08 giây) được giữ lại sau tín hiệu dừng. "
+                 "Giúp phần nhả hơi/kết thúc câu ở từ cuối cùng trọn vẹn và tự nhiên.",
         )
         gr.Markdown(
             "<sub>Dấu câu được chuẩn hóa trước khi tổng hợp: dấu `;` chuyển thành dấu phẩy `,`, "
             "dấu xuống dòng chuyển thành ngắt câu (trừ khi dòng đã kết thúc bằng dấu câu). "
-            "Mô hình được huấn luyện trên dữ liệu lời nói chuẩn hóa, nên dòng xuống dòng không sửa đổi sẽ bị mất.</sub>"
+            "Mô hình được huấn luyện trên dữ liệu lời nói chuẩn hóa, nên dòng xuống dòng "
+            "không sửa đổi sẽ bị mất.</sub>"
         )
 
     refresh_voices_btn.click(fn=refresh_voices, outputs=[voice_dropdown]).then(
