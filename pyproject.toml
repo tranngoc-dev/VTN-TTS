@@ -1,0 +1,86 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "zerotts"
+version = "0.1.5"
+description = "Lightweight Vietnamese Zero-Shot Text-to-Speech (TTS) with real-time streaming and voice cloning."
+readme = "README.md"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+authors = [{ name = "ZeroWeight AI" }]
+keywords = ["tts", "text-to-speech", "vietnamese", "onnx", "speech-synthesis", "lightweight", "voice clone"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Topic :: Multimedia :: Sound/Audio :: Speech",
+]
+
+# The inference path is numpy + onnxruntime + tokenizers only. No torch.
+dependencies = [
+    "numpy>=1.23",
+    "onnxruntime>=1.17.0",
+    "tokenizers>=0.20.0",
+    "huggingface_hub>=0.23.0",
+    "soundfile>=0.12.1",
+    "scipy>=1.10.0",
+    "sounddevice>=0.5.2",
+]
+
+[project.optional-dependencies]
+# app.py mounts Gradio on its own FastAPI app so the streaming-audio route exists
+# before the server starts. Both are imported directly, so both are named here
+# rather than relied on as transitive Gradio dependencies.
+webui = ["gradio>=4.44.0", "fastapi>=0.110", "uvicorn>=0.27", "requests>=2.31"]
+# Metrics only — the scorers are torch models. Inference stays torch-free.
+# Benchmarking. The metrics themselves live in the ZeroBench-TTS dataset repo
+# (fetched at runtime by evaluation/zerobench.py); these are the libraries its
+# scorer needs. UTMOSv2 is optional — pass --skip_utmos without it.
+eval = [
+    "torch>=2.4.0",
+    "torchaudio>=2.4.0",
+    "transformers>=4.44.0",
+    "huggingface_hub>=0.23",
+    "datasets>=2.19",
+    "librosa>=0.10",
+    "pandas>=2.0",
+    "jiwer>=3.0",
+]
+dev = ["pytest>=7.4", "ruff>=0.5"]
+
+[project.urls]
+Homepage = "https://github.com/zeroweight-ai/ZeroTTS"
+Weights = "https://huggingface.co/zeroweight-ai/ZeroTTS"
+Benchmark = "https://huggingface.co/datasets/zeroweight-ai/ZeroBench-TTS"
+
+[project.scripts]
+zerotts = "zerotts.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+# abbreviations.txt is data, not code — without this it is missing from the
+# wheel and acronym expansion silently degrades to a no-op.
+[tool.setuptools.package-data]
+"zerotts.text_norm" = ["data/*.txt", "data/LICENSE.soe-vinorm"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py39"
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "UP", "B", "C4"]
+ignore = [
+    # gr.Progress() as a default is Gradio's documented idiom, not a bug.
+    "B008",
+]
+
+[tool.ruff.lint.per-file-ignores]
+# Examples print and read top-to-bottom; module-level code is the point.
+"examples/*" = ["E402"]
+# One verbose regex whose alternation branches are a line each — wrapping them
+# would obscure the pattern without making it shorter.
+"src/zerotts/text_norm/vi_normalizer.py" = ["E501"]

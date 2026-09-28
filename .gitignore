@@ -1,0 +1,30 @@
+__pycache__/
+*.py[cod]
+*.egg-info/
+build/
+dist/
+.venv/
+venv/
+.pytest_cache/
+.ruff_cache/
+*.wav
+!**/preview.wav
+outputs/
+models/
+js/node_modules/
+js/dist/
+
+# cpp/: cmake output, converted weights, and the WASM artifacts staged for Vite.
+# cpp/vendor-ggml is a submodule, not ignored. `models/` and `build/` above
+# already cover cpp/models and cpp/build.
+cpp/build-wasm/
+# emcmake's compiler probe
+cpp/a.out.*
+js/public/ggml/*.js
+js/public/ggml/*.wasm
+js/public/ggml/models
+.DS_Store
+
+# internal planning docs must never land in the public repo
+docs/PLAN.md
+checkpoints/
